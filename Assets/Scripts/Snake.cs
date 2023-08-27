@@ -57,11 +57,18 @@ namespace Assets.Scripts
 
 		private void Move_performed(InputAction.CallbackContext context)
 		{
-			direction = context.ReadValue<Vector2>();
-		}
+			var newDirection = context.ReadValue<Vector2>();
+			var x = Mathf.RoundToInt(newDirection.x);
+			var y = Mathf.RoundToInt(newDirection.y);
 
-		private void Update()
-		{
+			if (direction.x != 0 && y != 0)
+			{
+				direction = newDirection;
+			}
+			if (direction.y != 0 && x != 0)
+			{
+				direction = newDirection;
+			}
 		}
 
 		private void FixedUpdate()
@@ -70,12 +77,11 @@ namespace Assets.Scripts
 			{
 				segments[i].position = segments[i - 1].position;
 			}
-			transform.position = new Vector3(Mathf.RoundToInt(transform.position.x) + direction.x, Mathf.RoundToInt(transform.position.y) + direction.y, transform.position.z);
+			transform.position = new Vector3(Mathf.RoundToInt(transform.position.x) + Mathf.RoundToInt(direction.x), Mathf.RoundToInt(transform.position.y) + Mathf.RoundToInt(direction.y), transform.position.z);
 		}
 
 		private void OnTriggerEnter2D(Collider2D collision)
 		{
-			Debug.Log(collision.tag); 
 			if (collision.tag == "Food")
 			{
 				Grow();
