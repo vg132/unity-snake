@@ -20,20 +20,24 @@ namespace Assets.Scripts
 		}
 
 		private Vector2 _direction;
+		private Vector2 _nextDirection;
 		private SnakeControls _inputControls;
 		private List<Transform> _segments = new List<Transform>();
 		private int _score;
 		private GameState _state;
 		private float _countdown;
 		private float _speedCounter;
+		private float _speed;
 
 		public Transform segmentPrefab;
 		public int startSize = 4;
 		public TextMeshProUGUI playerScoreText;
+		public TextMeshProUGUI coundownText;
+		public TextMeshProUGUI highScoreText;
 		public GameObject mainMenu;
 		public GameObject countdownMenu;
-		public TextMeshProUGUI coundownText;
-		public float speed = 0.16f;
+		public float startSpeed = 0.13f;
+		public AnimationCurve speedCurve;
 
 		private void NewGame()
 		{
@@ -41,9 +45,11 @@ namespace Assets.Scripts
 			{
 				Destroy(_segments[i].gameObject);
 			}
+			_speed = startSpeed;
 			_score = 0;
 			playerScoreText.text = "0";
 			transform.position = Vector3.zero;
+			_nextDirection = Vector2.right;
 			_direction = Vector2.right;
 			_segments = new List<Transform> { transform };
 			for (int i = 1; i < startSize; i++)
@@ -56,6 +62,7 @@ namespace Assets.Scripts
 		private void Awake()
 		{
 			_inputControls = new SnakeControls();
+			highScoreText.text = Settings.HighScore.ToString();
 			State = GameState.Menu;
 		}
 
@@ -81,11 +88,11 @@ namespace Assets.Scripts
 
 				if (_direction.x != 0 && y != 0)
 				{
-					_direction = newDirection;
+					_nextDirection = newDirection;
 				}
 				if (_direction.y != 0 && x != 0)
 				{
-					_direction = newDirection;
+					_nextDirection = newDirection;
 				}
 			}
 		}
@@ -112,13 +119,14 @@ namespace Assets.Scripts
 			if(State == GameState.Running)
 			{
 				_speedCounter += Time.fixedDeltaTime;
-				if(_speedCounter > speed)
+				if(_speedCounter > _speed)
 				{
 					_speedCounter = 0;
 					for (int i = _segments.Count - 1; i > 0; i--)
 					{
 						_segments[i].position = _segments[i - 1].position;
 					}
+					_direction = _nextDirection;
 					var x = Mathf.RoundToInt(transform.position.x) + Mathf.RoundToInt(_direction.x);
 					var y = Mathf.RoundToInt(transform.position.y) + Mathf.RoundToInt(_direction.y);
 					transform.position = new Vector3(x, y, transform.position.z);
@@ -141,7 +149,7 @@ namespace Assets.Scripts
 					return;
 				}
 				_state = value;
-				if(_state==GameState.Menu)
+				if (_state == GameState.Menu)
 				{
 					mainMenu.SetActive(true);
 					countdownMenu.SetActive(false);
@@ -172,22 +180,10 @@ namespace Assets.Scripts
 				if (collision.tag == "Food")
 				{
 					_score++;
-					if (speed > 0.02f)
-					{
-						if (_score == 1 || _score == 3 || _score == 6 || _score == 10)
-						{
-							speed -= 0.01f;
-						}
-						else if (_score == 15 || _score == 20 || _score == 25 || _score == 30)
-						{
-							speed -= 0.01f;
-						}
-						else
-						{
-							speed -= 0.001f;
-						}
-					}
+					_speed = ((1.0f - speedCurve.Evaluate(_score / 50.0f)) * ((startSpeed-0.02f) * 100.0f)) / 100.0f + 0.02f;
 					playerScoreText.text = _score.ToString();
+					Settings.HighScore = _score;
+					highScoreText.text = Settings.HighScore.ToString();
 					Grow();
 				}
 				else if (collision.tag == "Obsticle")
