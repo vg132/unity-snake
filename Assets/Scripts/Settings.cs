@@ -11,7 +11,7 @@ namespace Assets.Scripts
 			{
 				if(_highScore == null)
 				{
-					_highScore= PlayerPrefs.GetInt(nameof(HighScore), 0);
+					_highScore = PlayerPrefs.GetInt(nameof(HighScore), 0);
 				}
 				return _highScore.Value;
 			}
