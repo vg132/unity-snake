@@ -36,7 +36,7 @@ namespace Assets.Scripts
 			//}
 		}
 
-		public void CalculatePath(Vector2Int startPoint, Vector2Int endPoint)
+		public List<Node> CalculatePath(Vector2Int startPoint, Vector2Int endPoint)
 		{
 			var openNodes = new List<Node>();
 			var closedNodes = new List<Node>();
@@ -73,7 +73,7 @@ namespace Assets.Scripts
 					} while (currentNode != null);
 					path.Reverse();
 					Debug.Log($"Path: {string.Join(" - ", path.Select(item => item.position))} (Iterations: {10000 - failSafe})");
-					return;
+					return path;
 				}
 				var children = new List<Node>();
 				for (int x = -1; x < 2; x++)
@@ -110,6 +110,7 @@ namespace Assets.Scripts
 				}
 			}
 			Debug.Log("Failsafe: " + failSafe);
+			return new List<Node>();
 		}
 	}
 }

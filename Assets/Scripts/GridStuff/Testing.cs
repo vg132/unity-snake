@@ -6,7 +6,7 @@ namespace Assets.Scripts.GridStuff
 	{
 		private void Start()
 		{
-			var grid = new AIGrid(40, 40);
+			var grid = new AIGrid(46, 23);
 			grid.CalculatePath(new Vector2Int(1, 1), new Vector2Int(25, 15));
 		}
 	}
