@@ -1,116 +1,96 @@
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using UnityEngine;
 
-namespace Assets.Scripts
+namespace Assets.Scripts.GridStuff
 {
-	public class Node
+	public partial class Grid<TGridObject>
 	{
-		public Node parent;
-		public Vector2Int position;
-		public int g;
-		public int h;
-		public int f => g + h;
-	}
+		public event EventHandler<OnGridValueChangedEventArgs<TGridObject>> OnGridValueChanged;
 
-	public class AIGrid
-	{
-		private readonly int _width;
-		private readonly int _height;
-		private int[,] _grid;
+		public int Width { get; private set; }
+		public int Height { get; private set; }
+		public float CellSize { get; private set; }
+		private Vector3 _originPosition;
+		private TGridObject[,] _grid;
 
-		public AIGrid(int width, int height)
+		public Grid(int width, int height, float cellSize, Vector3 originPosition = default, Func<Grid<TGridObject>, int, int, TGridObject> createGridObject = null)
 		{
-			_width = width;
-			_height = height;
+			Width = width;
+			Height = height;
+			CellSize = cellSize;
+			_originPosition = originPosition;
+			_grid = new TGridObject[Width, Height];
 
-			_grid = new int[width, height];
-
-			//Debug.Log(width + " " + height);
-			//for(int x= 0; x < width; x++)
-			//{
-			//	for(int y= 0; y < height; y++)
-			//	{
-			//		Debug.Log(x + ", " + y);
-			//	}
-			//}
-		}
-
-		public List<Node> CalculatePath(Vector2Int startPoint, Vector2Int endPoint)
-		{
-			var openNodes = new List<Node>();
-			var closedNodes = new List<Node>();
-
-			var start = new Node { position = startPoint };
-			var end = new Node { position = endPoint };
-
-			openNodes.Add(start);
-			var failSafe = 10000;
-			while (openNodes.Count > 0 && failSafe > 0)
+			for (int x = 0; x < Width; x++)
 			{
-				failSafe--;
-				var currentIndex = 0;
-				var currentNode = openNodes[currentIndex];
-				for (int i = 1; i < openNodes.Count; i++)
+				for (int y = 0; y < Height; y++)
 				{
-					if (openNodes[i].f < currentNode.f)
-					{
-						currentNode = openNodes[i];
-						currentIndex = i;
-					}
-				}
-				openNodes.RemoveAt(currentIndex);
-				closedNodes.Add(currentNode);
-				if (currentNode.position == endPoint)
-				{
-					Debug.Log("Found the end!");
-
-					var path = new List<Node>();
-					do
-					{
-						path.Add(currentNode);
-						currentNode = currentNode.parent;
-					} while (currentNode != null);
-					path.Reverse();
-					Debug.Log($"Path: {string.Join(" - ", path.Select(item => item.position))} (Iterations: {10000 - failSafe})");
-					return path;
-				}
-				var children = new List<Node>();
-				for (int x = -1; x < 2; x++)
-				{
-					for (int y = -1; y < 2; y++)
-					{
-						if (y == 0 && x == 0)
-						{
-							continue;
-						}
-						var position = new Vector2Int(currentNode.position.x + x, currentNode.position.y + y);
-						if (position.y < 0 || position.x < 0 || position.y >= _height || position.x >= _width)
-						{
-							continue;
-						}
-						children.Add(new Node { position = position, parent = currentNode });
-					}
-				}
-
-				foreach (var child in children)
-				{
-					if (closedNodes.Any(item => item.position == child.position))
-					{
-						continue;
-					}
-					child.g = currentNode.g + 1;
-					child.h = (int)(Mathf.Pow(child.position.x - endPoint.x, 2) + Mathf.Pow(child.position.y - endPoint.y, 2) * 100);
-
-					if (openNodes.Any(item => item.position == child.position && item.g < child.g))
-					{
-						continue;
-					}
-					openNodes.Add(child);
+					_grid[x, y] = createGridObject != null ? createGridObject(this, x, y) : default;
 				}
 			}
-			Debug.Log("Failsafe: " + failSafe);
-			return new List<Node>();
+#if UNITY_EDITOR
+			new GridDebug<TGridObject>(this);
+#endif
 		}
+
+		public Vector3 GetWorldPosition(int x, int y)
+		{
+			return new Vector3(x, y) * CellSize + _originPosition;
+		}
+
+		public Vector2Int GetLocalPosition(Vector3 worldPosition)
+		{
+			var position = worldPosition - _originPosition;
+			return new Vector2Int(Mathf.FloorToInt(position.x / CellSize), Mathf.FloorToInt(position.y / CellSize));
+		}
+
+		public void SetGridItem(Vector3 worldPosition, TGridObject value)
+		{
+			var position = GetLocalPosition(worldPosition);
+			SetGridItem(position.x, position.y, value);
+		}
+
+		public void SetGridItem(int x, int y, TGridObject value)
+		{
+			if (InRange(x, y))
+			{
+				_grid[x, y] = value;
+				TriggerGridObjectChanged(x, y);
+			}
+		}
+
+		public void TriggerGridObjectChanged(int x, int y)
+		{
+			if (OnGridValueChanged != null && InRange(x, y))
+			{
+				var value = _grid[x, y];
+				OnGridValueChanged(this, new OnGridValueChangedEventArgs<TGridObject>(x, y, value));
+			}
+		}
+
+		public TGridObject GetGridItem(Vector3 worldPosition)
+		{
+			var position = GetLocalPosition(worldPosition);
+			return GetGridItem(position.x, position.y);
+		}
+
+		public TGridObject GetGridItem(int x, int y)
+		{
+			if (InRange(x, y))
+			{
+				return _grid[x, y];
+			}
+			return default;
+		}
+
+		public bool InRange(Vector2Int position) => InRange(position.x, position.y);
+
+		public bool InRange(Vector3 worldPosition)
+		{
+			var localPosition = GetLocalPosition(worldPosition);
+			return InRange(localPosition.x, localPosition.y);
+		}
+
+		public bool InRange(int x, int y) => x >= 0 && y >= 0 && x < Width && y < Height;
 	}
 }
