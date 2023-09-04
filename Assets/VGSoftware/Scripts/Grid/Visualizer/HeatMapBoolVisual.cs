@@ -1,7 +1,7 @@
 using Assets.Scripts.Utils;
 using UnityEngine;
 
-namespace Assets.Scripts.GridStuff
+namespace Assets.VGSoftware.Scripts.Grid.Visualizer
 {
 	[RequireComponent(typeof(MeshFilter))]
 	public class HeatMapBoolVisual : MonoBehaviour

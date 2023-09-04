@@ -1,9 +1,9 @@
-using System.Collections;
+using Assets.VGSoftware.Scripts.Grid;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Assets.Scripts.GridStuff
+namespace Assets.VGSoftware.Scripts.AI
 {
 	public class Pathfinding
 	{

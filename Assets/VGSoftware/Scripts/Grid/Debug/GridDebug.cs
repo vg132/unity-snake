@@ -2,7 +2,7 @@ using Assets.Scripts.Utils;
 using TMPro;
 using UnityEngine;
 
-namespace Assets.Scripts.GridStuff
+namespace Assets.VGSoftware.Scripts.Grid
 {
 	public class GridDebug<TGridObject>
 	{

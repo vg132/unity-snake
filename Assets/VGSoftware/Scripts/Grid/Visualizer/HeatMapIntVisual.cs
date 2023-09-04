@@ -1,12 +1,12 @@
 using Assets.Scripts.Utils;
 using UnityEngine;
 
-namespace Assets.Scripts.GridStuff
+namespace Assets.VGSoftware.Scripts.Grid.Visualizer
 {
 	[RequireComponent(typeof(MeshFilter))]
-	public class HeatMapGenericVisual : MonoBehaviour
+	public class HeatMapIntVisual : MonoBehaviour
 	{
-		private Grid<HeatMapGridObject> _grid;
+		private Grid<int> _grid;
 		private Mesh _mesh;
 		private bool _updateMesh = true;
 
@@ -16,13 +16,13 @@ namespace Assets.Scripts.GridStuff
 			GetComponent<MeshFilter>().mesh = _mesh;
 		}
 
-		public void SetGrid(Grid<HeatMapGridObject> grid)
+		public void SetGrid(Grid<int> grid)
 		{
 			_grid = grid;
 			_grid.OnGridValueChanged += Grid_OnGridValueChanged;
 		}
 
-		private void Grid_OnGridValueChanged(object sender, OnGridValueChangedEventArgs<HeatMapGridObject> e)
+		private void Grid_OnGridValueChanged(object sender, OnGridValueChangedEventArgs<int> e)
 		{
 			_updateMesh = true;
 		}
@@ -49,8 +49,10 @@ namespace Assets.Scripts.GridStuff
 				{
 					var index = x * _grid.Height + y;
 					var baseSize = new Vector3(1, 1) * _grid.CellSize;
-					var gridObject = _grid.GetGridItem(x, y);
-					var gridCellUV = new Vector2(gridObject.GetValueNormalized(), 0f);
+					var gridValue = _grid.GetGridItem(x, y);
+					var maxGridValue = 100;
+					var gridValueNormalized = Mathf.Clamp01((float)gridValue / maxGridValue);
+					var gridCellUV = new Vector2(gridValueNormalized, 0f);
 					MeshUtils.AddToMeshArrays(vertices, uv, triangles, index, _grid.GetWorldPosition(x, y) + baseSize * 0.5f, 0f, baseSize, gridCellUV, gridCellUV);
 				}
 			}

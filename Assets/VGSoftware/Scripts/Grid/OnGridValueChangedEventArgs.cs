@@ -1,6 +1,6 @@
 using System;
 
-namespace Assets.Scripts.GridStuff
+namespace Assets.VGSoftware.Scripts.Grid
 {
 	public class OnGridValueChangedEventArgs<TGridObject> : EventArgs
 	{

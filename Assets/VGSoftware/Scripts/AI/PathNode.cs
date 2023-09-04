@@ -1,5 +1,6 @@
+using Assets.VGSoftware.Scripts.Grid;
 
-namespace Assets.Scripts.GridStuff
+namespace Assets.VGSoftware.Scripts.AI
 {
 	public class PathNode : BaseGridObject<PathNode>
 	{

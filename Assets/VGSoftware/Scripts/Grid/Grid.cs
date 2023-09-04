@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Assets.Scripts.GridStuff
+namespace Assets.VGSoftware.Scripts.Grid
 {
 	public partial class Grid<TGridObject>
 	{
