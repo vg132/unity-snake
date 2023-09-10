@@ -1,3 +1,5 @@
+using Assets.VGSoftware.Scripts.AI;
+using Assets.VGSoftware.Scripts.Grid;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,8 +41,16 @@ namespace Assets.Scripts
 		public float startSpeed = 0.13f;
 		public AnimationCurve speedCurve;
 
+		private Grid<LevelGridItem> levelGrid;
+
 		private void NewGame()
 		{
+			levelGrid = LevelRepository.LoadLevel(Constants.Levels.Level1);
+
+			new Pathfinding(levelGrid.Width, levelGrid.Height);
+
+
+
 			for (int i = 1; i < _segments.Count; i++)
 			{
 				Destroy(_segments[i].gameObject);
