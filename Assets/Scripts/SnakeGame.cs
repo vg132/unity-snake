@@ -1,6 +1,8 @@
 using Assets.VGSoftware.Scripts.Grid;
+using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Assets.Scripts
 {
@@ -82,7 +84,6 @@ namespace Assets.Scripts
 			else if (State == GameState.Running)
 			{
 				highScoreText.text = Settings.HighScore.ToString();
-				Debug.Log($"Player is alive: {player1.IsAlive}");
 				if(!player1.IsAlive)
 				{
 					player1.enabled = false;

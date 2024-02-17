@@ -23,5 +23,6 @@ namespace Assets.VGSoftware.Scripts.Grid.Visualizer
 
 		public float GetValueNormalized() => (float)_value / MAX;
 		public override string ToString() => _value.ToString();
+		public override bool IsDefaultState() => _value == 0;
 	}
 }

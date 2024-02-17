@@ -13,6 +13,8 @@ namespace Assets.VGSoftware.Scripts.Grid
 			Y = y;
 		}
 
+		public abstract bool IsDefaultState();
+
 		protected virtual void TriggerGridObjectChanged()
 		{
 			_grid.TriggerGridObjectChanged(X, Y);

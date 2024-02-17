@@ -16,5 +16,7 @@ namespace Assets.VGSoftware.Scripts.AI
 		}
 
 		public override string ToString() => $"{X}, {Y}\n{IsObsticle}";
+
+		public override bool IsDefaultState() => gCost == 0 && hCost == 0 && IsObsticle == false && CameFromNode == null;
 	}
 }
